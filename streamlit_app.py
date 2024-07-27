@@ -37,7 +37,7 @@ if option_dates:
 
     # Specify the target strike price (default to current price)
     target_strike = float(current_price)
-    st.write(f"ATM strike: {target_strike} %")
+    st.write(f"ATM strike: {target_strike:.2f}")
     
     # Find the closest strike price to the target
     available_strikes = straddles['strike'].values
