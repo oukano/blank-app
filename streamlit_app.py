@@ -15,6 +15,9 @@ selected_ticker = st.selectbox("Select Ticker Symbol", options=list(ticker_optio
 # Fetch the ticker data
 ticker = yf.Ticker(selected_ticker)
 
+# Get the current price of the selected ticker
+current_price = ticker.history(period="1d")['Close'].iloc[-1]
+
 # Fetch the available option expiration dates
 option_dates = ticker.options
 
@@ -32,8 +35,8 @@ if option_dates:
     # Merge calls and puts on the strike price
     straddles = calls.merge(puts, on='strike', suffixes=('_call', '_put'))
 
-    # Specify the target strike price
-    target_strike = st.number_input("Enter Target Strike Price", min_value=0, value=450)
+    # Specify the target strike price (default to current price)
+    target_strike = st.number_input("Enter Target Strike Price", min_value=0.0, value=float(current_price))
 
     # Find the closest strike price to the target
     available_strikes = straddles['strike'].values
@@ -44,9 +47,4 @@ if option_dates:
 
     # Display the call and put options for the closest strike price
     if not closest_straddle.empty:
-        st.write(f"Options for closest strike price to {target_strike} (actual strike price {closest_strike}):")
-        st.write(closest_straddle[['strike', 'lastPrice_call', 'lastPrice_put', 'bid_call', 'bid_put', 'ask_call', 'ask_put']])
-    else:
-        st.write(f"No options found for strike price {target_strike} or closest strike price {closest_strike}.")
-else:
-    st.write("No available option expiration dates.")
+        st.write(f"Options for close
