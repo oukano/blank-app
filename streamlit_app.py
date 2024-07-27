@@ -51,7 +51,11 @@ if option_dates:
         st.write(closest_straddle[['strike', 'lastPrice_call', 'lastPrice_put', 'bid_call', 'bid_put', 'ask_call', 'ask_put']])
          # Calculate the formula
         calculation = ((closest_straddle['lastPrice_call'].values[0] + closest_straddle['lastPrice_put'].values[0]) / target_strike) * 100
+        # Format the calculation result to two decimal places
+        formatted_calculation = f"{calculation:.2f}"
         
+        # Display the calculation result
+        st.write(f"Calculation Result: {formatted_calculation}")
         # Display the calculation result
         st.write(f"Calculation Result: {calculation}")
     else:
