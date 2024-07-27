@@ -49,6 +49,11 @@ if option_dates:
     if not closest_straddle.empty:
         st.write(f"Options for closest strike price to {target_strike} (actual strike price {closest_strike}):")
         st.write(closest_straddle[['strike', 'lastPrice_call', 'lastPrice_put', 'bid_call', 'bid_put', 'ask_call', 'ask_put']])
+         # Calculate the formula
+        calculation = ((closest_straddle['lastPrice_call'].values[0] + closest_straddle['lastPrice_put'].values[0]) * target_strike) * 100
+        
+        # Display the calculation result
+        st.write(f"Calculation Result: {calculation}")
     else:
         st.write(f"No options found for strike price {target_strike} or closest strike price {closest_strike}.")
 else:
