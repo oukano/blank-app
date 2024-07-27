@@ -56,8 +56,6 @@ if option_dates:
         
         # Display the calculation result
         st.write(f"Calculation Result: {formatted_calculation}")
-        # Display the calculation result
-        st.write(f"Calculation Result: {calculation}")
     else:
         st.write(f"No options found for strike price {target_strike} or closest strike price {closest_strike}.")
 else:
