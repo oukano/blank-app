@@ -47,4 +47,9 @@ if option_dates:
 
     # Display the call and put options for the closest strike price
     if not closest_straddle.empty:
-        st.write(f"Options for close
+        st.write(f"Options for closest strike price to {target_strike} (actual strike price {closest_strike}):")
+        st.write(closest_straddle[['strike', 'lastPrice_call', 'lastPrice_put', 'bid_call', 'bid_put', 'ask_call', 'ask_put']])
+    else:
+        st.write(f"No options found for strike price {target_strike} or closest strike price {closest_strike}.")
+else:
+    st.write("No available option expiration dates.")
