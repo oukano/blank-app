@@ -55,7 +55,7 @@ if option_dates:
         formatted_calculation = f"{calculation:.2f}"
         
         # Display the calculation result
-        st.write(f"implied Vilatility: {formatted_calculation}")
+        st.write(f"implied Vilatility: {formatted_calculation} %")
     else:
         st.write(f"No options found for strike price {target_strike} or closest strike price {closest_strike}.")
 else:
