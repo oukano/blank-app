@@ -36,8 +36,9 @@ if option_dates:
     straddles = calls.merge(puts, on='strike', suffixes=('_call', '_put'))
 
     # Specify the target strike price (default to current price)
-    target_strike = st.number_input("Enter Target Strike Price", min_value=0.0, value=float(current_price))
-
+    target_strike = float(current_price)
+    st.write(f"ATM strike: {target_strike} %")
+    
     # Find the closest strike price to the target
     available_strikes = straddles['strike'].values
     closest_strike = available_strikes[(abs(available_strikes - target_strike)).argmin()]
