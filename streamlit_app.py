@@ -7,7 +7,7 @@ ticker_options = {
     "GLD": "SPDR Gold Shares"
 }
 
-st.title("Option Data Viewer")
+st.title("CTT volatility calculator")
 
 # Create a dropdown for selecting the ticker symbol
 selected_ticker = st.selectbox("Select Ticker Symbol", options=list(ticker_options.keys()), format_func=lambda x: ticker_options[x])
