@@ -52,15 +52,15 @@ if option_dates:
 
     # Display the call and put options for the closest strike price
     if not closest_straddle.empty:
-        st.write(f"Options for closest strike price to {target_strike} (actual strike price {closest_strike}):")
-        st.write(closest_straddle[['strike', 'lastPrice_call', 'lastPrice_put', 'bid_call', 'bid_put', 'ask_call', 'ask_put']])
          # Calculate the formula
         calculation = ((closest_straddle['lastPrice_call'].values[0] + closest_straddle['lastPrice_put'].values[0]) / target_strike) * 100
         # Format the calculation result to two decimal places
         formatted_calculation = f"{calculation:.2f}"
         
         # Display the calculation result
-        st.write(f"implied Vilatility: {formatted_calculation} %")
+        st.write(f"implied Volatility: {formatted_calculation} %")
+        st.write(f"Upper band: {formatted_calculation} %")
+        st.write(f"lower band: {formatted_calculation} %")
     else:
         st.write(f"No options found for strike price {target_strike} or closest strike price {closest_strike}.")
 
