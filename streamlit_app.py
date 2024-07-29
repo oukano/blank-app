@@ -2,6 +2,8 @@ import streamlit as st
 import yfinance as yf
 import numpy as np
 import plotly.graph_objects as go
+from datetime import datetime, timedelta
+from alpha_vantage.timeseries import TimeSeries
 
 # Define available ticker symbols and their names
 ticker_options = {
@@ -62,19 +64,34 @@ if option_dates:
     else:
         st.write(f"No options found for strike price {target_strike} or closest strike price {closest_strike}.")
 
-    # Fetch NASDAQ100 data
-    nasdaq_ticker = yf.Ticker("QQQ")  # NASDAQ100 ETF
-    nasdaq_data = nasdaq_ticker.history(period="1mo")  # 1 month of data
+    # Fetch NASDAQ100 index data with 15-minute intervals using Alpha Vantage
+    api_key = 'Q3Z9WYL69YGLW8OM'  # Replace with your Alpha Vantage API key
+    ts = TimeSeries(key=api_key, output_format='pandas')
+
+    # Alpha Vantage does not support indices directly, but you can use an alternative symbol if available
+    symbol = 'NDX'  # Symbol for NASDAQ-100 Index if available
+    data, meta_data = ts.get_intraday(symbol=symbol, interval='15min', outputsize='full')
+
+    # Filter data for the current day
+    end_time = datetime.now()
+    start_time = end_time - timedelta(days=1)
+    nasdaq_data = data.loc[start_time:end_time]
+
+    # Check NASDAQ data
+    st.write(nasdaq_data.head())
 
     # Calculate upper and lower bands
-    nasdaq_data['Upper Band'] = nasdaq_data['Close'] + (implied_volatility / 100 * nasdaq_data['Close'])
-    nasdaq_data['Lower Band'] = nasdaq_data['Close'] - (implied_volatility / 100 * nasdaq_data['Close'])
+    nasdaq_data['Upper Band'] = nasdaq_data['4. close'] + (implied_volatility / 100 * nasdaq_data['4. close'])
+    nasdaq_data['Lower Band'] = nasdaq_data['4. close'] - (implied_volatility / 100 * nasdaq_data['4. close'])
+
+    # Check calculated bands
+    st.write(nasdaq_data[['4. close', 'Upper Band', 'Lower Band']].head())
 
     # Plot the data
     fig = go.Figure()
 
     # Add NASDAQ price line
-    fig.add_trace(go.Scatter(x=nasdaq_data.index, y=nasdaq_data['Close'], mode='lines', name='NASDAQ Price'))
+    fig.add_trace(go.Scatter(x=nasdaq_data.index, y=nasdaq_data['4. close'], mode='lines', name='NASDAQ Price'))
 
     # Add Upper Band line
     fig.add_trace(go.Scatter(x=nasdaq_data.index, y=nasdaq_data['Upper Band'], mode='lines', name='Upper Band', line=dict(dash='dash')))
@@ -83,8 +100,8 @@ if option_dates:
     fig.add_trace(go.Scatter(x=nasdaq_data.index, y=nasdaq_data['Lower Band'], mode='lines', name='Lower Band', line=dict(dash='dash')))
 
     # Update layout
-    fig.update_layout(title=f"NASDAQ100 Price and Bands",
-                        xaxis_title='Date',
+    fig.update_layout(title=f"NASDAQ100 Price and Bands (Current Day)",
+                        xaxis_title='Time',
                         yaxis_title='Price',
                         template='plotly_dark')
 
