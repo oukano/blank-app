@@ -7,8 +7,8 @@ from alpha_vantage.timeseries import TimeSeries
 
 # Define available ticker symbols and their names
 ticker_options = {
-    "QQQ": "Invesco QQQ Trust",
-    "GLD": "SPDR Gold Shares"
+    "QQQ": "Nasdaq",
+    "GLD": "XAU"
 }
 
 st.title("CTT volatility calculator")
