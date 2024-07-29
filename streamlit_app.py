@@ -59,8 +59,8 @@ if option_dates:
         
         # Display the calculation result
         st.write(f"implied Volatility: {formatted_calculation} %")
-        st.write(f"Upper band: {formatted_calculation} %")
-        st.write(f"lower band: {formatted_calculation} %")
+        st.write(f"Upper band: -")
+        st.write(f"lower band: -")
     else:
         st.write(f"No options found for strike price {target_strike} or closest strike price {closest_strike}.")
 
