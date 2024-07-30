@@ -11,7 +11,7 @@ ticker_options = {
     "GLD": "XAU"
 }
 
-st.title("CTT volatility calculator")
+st.title("CTT - Expected Move Calculator")
 
 # Create a dropdown for selecting the ticker symbol
 selected_ticker = st.selectbox("Select Ticker Symbol", options=list(ticker_options.keys()), format_func=lambda x: ticker_options[x])
@@ -41,7 +41,7 @@ if option_dates:
 
     # Specify the target strike price (default to current price)
     target_strike = float(current_price)
-    st.write(f"ATM strike: {target_strike:.2f}")
+    # st.write(f"ATM strike: {target_strike:.2f}")
     
     # Find the closest strike price to the target
     available_strikes = straddles['strike'].values
@@ -58,7 +58,7 @@ if option_dates:
         formatted_calculation = f"{calculation:.2f}"
         
         # Display the calculation result
-        st.write(f"implied Volatility: {formatted_calculation} %")
+        st.write(f"expected move: {formatted_calculation} %")
         st.write(f"Upper band: -")
         st.write(f"lower band: -")
     else:
