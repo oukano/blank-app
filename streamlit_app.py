@@ -8,7 +8,8 @@ from alpha_vantage.timeseries import TimeSeries
 # Define available ticker symbols and their names
 ticker_options = {
     "QQQ": "Nasdaq",
-    "GLD": "XAU"
+    "GLD": "XAU",
+    "SPY": "S&P"
 }
 
 st.title("CTT - Expected Move Calculator")
