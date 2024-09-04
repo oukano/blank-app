@@ -4,6 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 from alpha_vantage.timeseries import TimeSeries
+import pytz
 
 # Define available ticker symbols and their names
 ticker_options = {
@@ -19,7 +20,16 @@ selected_ticker = st.selectbox("Select Ticker Symbol", options=list(ticker_optio
 
 # Fetch the ticker data
 ticker = yf.Ticker(selected_ticker)
+# Set the U.S. timezone, e.g., New York (Eastern Time)
+us_timezone = pytz.timezone('America/New_York')
 
+# Get the current time in the U.S. timezone
+us_time = datetime.now(us_timezone)
+
+# Calculate yesterday's date in U.S. timezone
+yesterday_date = us_time - timedelta(1)
+yesterday_str = yesterday_date.strftime('%Y-%m-%d')
+print(ticker.history(start=yesterday_str, end=yesterday_str))
 # Get the current price of the selected ticker
 current_price = ticker.history(period="1d")['Close'].iloc[-1]
 

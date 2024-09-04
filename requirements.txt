@@ -2,3 +2,4 @@ streamlit
 yfinance
 plotly
 alpha_vantage
+pytz
