@@ -31,7 +31,7 @@ yesterday_date = us_time - timedelta(1)
 yesterday_str = yesterday_date.strftime('%Y-%m-%d')
 print(ticker.history(start=yesterday_str, end=yesterday_str))
 # Get the current price of the selected ticker
-current_price = ticker.history(period="1d")['Close'].iloc[-1]
+current_price = ticker.history(period="2d")['Close'].iloc[-1]
 
 # Fetch the available option expiration dates
 option_dates = ticker.options
