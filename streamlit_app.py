@@ -34,14 +34,21 @@ yesterday_str = yesterday_date.strftime('%Y-%m-%d')
 # Get historical data for the last two days
 historical_data = ticker.history(period="2d")
 
-# Check if the historical data is not empty
-if not historical_data.empty:
-    # Get the current price of the selected ticker
-    current_price = historical_data['Close'].iloc[-1]
+# Check if historical data is empty and provide reasons
+if historical_data.empty:
+    st.write("No historical data available for the selected ticker.")
+    
+    # Check if the ticker symbol is valid
+    try:
+        # Attempt to get a single day's historical data to check validity
+        single_day_data = ticker.history(period="1d")
+        if single_day_data.empty:
+            st.write("The ticker might be invalid or delisted.")
+    except Exception as e:
+        st.write(f"Error fetching historical data: {e}")
 else:
-    st.write("No historical data available for the selected ticker. Please check the ticker symbol.")
-    current_price = None  # Set current_price to None if no data is available
-
+    # Proceed with extracting the current price
+    current_price = historical_data['Close'].iloc[-1]
 # Fetch the available option expiration dates
 option_dates = ticker.options
 
