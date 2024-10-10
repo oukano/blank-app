@@ -56,7 +56,7 @@ try:
                 st.write(f"Market is closed. Yesterday's Close: {yesterday_close}")
         else:
             # Market is open, get the current price
-            current_data = ticker.history(period="1d")
+            current_data = ticker.history(period="5d")
 
             if current_data.empty:
                 st.write("No historical data available for the selected ticker.")
