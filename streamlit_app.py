@@ -29,6 +29,7 @@ yesterday_close = None
 try:
     # Check if today is a weekend
     if current_time.weekday() >= 5:  # Saturday or Sunday
+        print('weekend')
         # Get historical data for the previous trading day (e.g., Friday for the weekend)
         previous_day = current_time - timedelta(days=1)
         historical_data = ticker.history(start=previous_day.strftime('%Y-%m-%d'), end=previous_day.strftime('%Y-%m-%d'))
@@ -40,14 +41,22 @@ try:
             yesterday_close = historical_data['Close'].iloc[-1]
             st.write(f"Market is closed. Yesterday's Close: {yesterday_close}")
     else:
+        print('not weekend')
+
         # Check market hours (9:30 AM to 4 PM EST)
         market_open = current_time.replace(hour=9, minute=30, second=0, microsecond=0)
         market_close = current_time.replace(hour=16, minute=0, second=0, microsecond=0)
 
         if current_time < market_open or current_time > market_close:
+            print('not weekend market closed')
+
             # Market is closed, get yesterday's closing price
             previous_day = current_time - timedelta(days=1)
-            historical_data = ticker.history(start=previous_day.strftime('%Y-%m-%d'), end=previous_day.strftime('%Y-%m-%d'))
+            next_day = previous_day + timedelta(days=1)
+            historical_data = ticker.history(start=previous_day.strftime('%Y-%m-%d'), end=next_day.strftime('%Y-%m-%d'))
+
+            print(previous_day.strftime('%Y-%m-%d'))
+            print(ticker.history(start="2024-10-09", end="2024-10-10", interval="1d"))
 
             if historical_data.empty:
                 st.write("No historical data available for the selected ticker.")
@@ -55,6 +64,9 @@ try:
                 yesterday_close = historical_data['Close'].iloc[-1]
                 st.write(f"Market is closed. Yesterday's Close: {yesterday_close}")
         else:
+
+            print('not weekend market open')
+
             # Market is open, get the current price
             current_data = ticker.history(period="5d")
 
@@ -89,7 +101,8 @@ if option_dates:
 
         # Merge calls and puts on the strike price
         straddles = calls.merge(puts, on='strike', suffixes=('_call', '_put'))
-        print('straddl' + straddles)
+        # print(straddles)
+        print(yesterday_close)
         # Specify the target strike price (default to current price)
         if yesterday_close is not None:
             target_strike = float(current_price) if 'current_price' in locals() else yesterday_close
