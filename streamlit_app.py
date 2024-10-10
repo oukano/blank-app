@@ -89,7 +89,7 @@ if option_dates:
 
         # Merge calls and puts on the strike price
         straddles = calls.merge(puts, on='strike', suffixes=('_call', '_put'))
-
+        print('straddl' + straddles)
         # Specify the target strike price (default to current price)
         if yesterday_close is not None:
             target_strike = float(current_price) if 'current_price' in locals() else yesterday_close
