@@ -26,59 +26,11 @@ current_time = datetime.now(us_timezone)
 # Define a default value for yesterday_close
 yesterday_close = None
 
-try:
-    # Check if today is a weekend
-    if current_time.weekday() >= 5:  # Saturday or Sunday
-        print('weekend')
-        # Get historical data for the previous trading day (e.g., Friday for the weekend)
-        previous_day = current_time - timedelta(days=1)
-        historical_data = ticker.history(start=previous_day.strftime('%Y-%m-%d'), end=previous_day.strftime('%Y-%m-%d'))
 
-        if historical_data.empty:
-            st.write("No historical data available for the selected ticker.")
-        else:
-            # Get yesterday's closing price
-            yesterday_close = historical_data['Close'].iloc[-1]
-            st.write(f"Market is closed. Yesterday's Close: {yesterday_close}")
-    else:
-        print('not weekend')
+current_data = ticker.history(period="1d")
 
-        # Check market hours (9:30 AM to 4 PM EST)
-        market_open = current_time.replace(hour=9, minute=30, second=0, microsecond=0)
-        market_close = current_time.replace(hour=16, minute=0, second=0, microsecond=0)
-
-        if current_time < market_open or current_time > market_close:
-            print('not weekend market closed')
-
-            # Market is closed, get yesterday's closing price
-            previous_day = current_time - timedelta(days=1)
-            next_day = previous_day + timedelta(days=1)
-            historical_data = ticker.history(start=previous_day.strftime('%Y-%m-%d'), end=next_day.strftime('%Y-%m-%d'))
-
-            print(previous_day.strftime('%Y-%m-%d'))
-            print(ticker.history(start="2024-10-09", end="2024-10-10", interval="1d"))
-
-            if historical_data.empty:
-                st.write("No historical data available for the selected ticker.")
-            else:
-                yesterday_close = historical_data['Close'].iloc[-1]
-                st.write(f"Market is closed. Yesterday's Close: {yesterday_close}")
-        else:
-
-            print('not weekend market open')
-
-            # Market is open, get the current price
-            current_data = ticker.history(period="5d")
-
-            if current_data.empty:
-                st.write("No historical data available for the selected ticker.")
-            else:
-                current_price = current_data['Close'].iloc[-1]
-                yesterday_close = current_price  # Use the current price when the market is open
-                st.write(f"Current Price: {current_price}")
-
-except Exception as e:
-    st.write(f"An error occurred while fetching data: {e}")
+# Extract the last closing price
+yesterday_close = current_data['Close'].iloc[-1]
 
 # Fetch the available option expiration dates
 try:
@@ -102,9 +54,11 @@ if option_dates:
         # Merge calls and puts on the strike price
         straddles = calls.merge(puts, on='strike', suffixes=('_call', '_put'))
         # print(straddles)
+        print('yesterday_close')
         print(yesterday_close)
         # Specify the target strike price (default to current price)
         if yesterday_close is not None:
+            print('inside yesterday close')
             target_strike = float(current_price) if 'current_price' in locals() else yesterday_close
 
             # Find the closest strike price to the target
@@ -116,6 +70,8 @@ if option_dates:
 
             # Display the call and put options for the closest strike price
             if not closest_straddle.empty:
+                print('inside yesterday close , straddle not empty')
+
                 # Calculate the expected move formula
                 expected_move_percentage = ((closest_straddle['lastPrice_call'].values[0] + closest_straddle['lastPrice_put'].values[0]) / target_strike) * 100
                 # Format the calculation result to two decimal places
@@ -131,12 +87,16 @@ if option_dates:
 
                 # Display the calculation result
                 st.write(f"Expected Move: {formatted_expected_move} %")
+                print(f"Expected Move: {formatted_expected_move} %")
                 st.write(f"Upper band: {formatted_upper_band}")
                 st.write(f"Lower band: {formatted_lower_band}")
             else:
+                print('inside yesterday close , straddle empty')
                 st.write(f"No options found for strike price {target_strike} or closest strike price {closest_strike}.")
+                print(f"No options found for strike price {target_strike} or closest strike price {closest_strike}.")
         else:
             st.write("No closing price available for calculation.")
+            print("No closing price available for calculation.")
     except Exception as e:
         st.write(f"An error occurred while fetching option chain data: {e}")
 else:
