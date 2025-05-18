@@ -3,3 +3,6 @@ yfinance
 plotly
 alpha_vantage
 pytz
+arch
+matplotlib 
+pandas

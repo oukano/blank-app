@@ -2,6 +2,9 @@ import streamlit as st
 import yfinance as yf
 from datetime import datetime, timedelta
 import pytz
+from arch import arch_model
+import pandas as pd
+import matplotlib.pyplot as plt
 
 # Define available ticker symbols and their names
 ticker_options = {
@@ -101,3 +104,37 @@ if option_dates:
         st.write(f"An error occurred while fetching option chain data: {e}")
 else:
     st.write("No available option expiration dates.")
+
+
+
+st.title("📈 GARCH(1,1) 1-Day Volatility Forecast")
+st.write("Estimate next-day volatility using the GARCH(1,1) model for S&P 500 or NASDAQ 100.")
+
+# User input
+symbol_map = {
+    "S&P 500 (SPX)": "^GSPC",
+    "NASDAQ 100 (NDX)": "^NDX"
+}
+index_name = st.selectbox("Select Index", list(symbol_map.keys()))
+symbol = symbol_map[index_name]
+
+start_date = st.date_input("Start Date", value=pd.to_datetime("2022-01-01"))
+
+if st.button("Forecast Volatility"):
+    with st.spinner("Fetching data and running GARCH model..."):
+        data = yf.download(symbol, start=start_date)
+        returns = 100 * data['Adj Close'].pct_change().dropna()
+
+        model = arch_model(returns, vol='GARCH', p=1, q=1)
+        res = model.fit(disp='off')
+
+        forecast = res.forecast(horizon=1)
+        next_vol = forecast.variance.iloc[-1, 0] ** 0.5
+
+        st.success(f"📊 Forecasted 1-day volatility for {index_name}: **{next_vol:.2f}%**")
+
+        # Plotting
+        fig, ax = plt.subplots()
+        res.conditional_volatility.plot(ax=ax, title=f"GARCH(1,1) Conditional Volatility - {index_name}")
+        ax.set_ylabel("Volatility (%)")
+        st.pyplot(fig)
