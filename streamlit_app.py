@@ -120,21 +120,48 @@ symbol = symbol_map[index_name]
 
 start_date = st.date_input("Start Date", value=pd.to_datetime("2022-01-01"))
 
-if st.button("Forecast Volatility"):
-    with st.spinner("Fetching data and running GARCH model..."):
+if st.button("Run Forecast and Compare"):
+    with st.spinner("Fetching market data and computing..."):
         data = yf.download(symbol, start=start_date)
-        returns = 100 * data['Adj Close'].pct_change().dropna()
+        iv_data = yf.download(iv_symbol, start=start_date)
 
+        # GARCH Forecast
+        returns = 100 * data['Adj Close'].pct_change().dropna()
         model = arch_model(returns, vol='GARCH', p=1, q=1)
         res = model.fit(disp='off')
-
         forecast = res.forecast(horizon=1)
-        next_vol = forecast.variance.iloc[-1, 0] ** 0.5
+        garch_vol = forecast.variance.iloc[-1, 0] ** 0.5
 
-        st.success(f"📊 Forecasted 1-day volatility for {index_name}: **{next_vol:.2f}%**")
+        # IV value
+        iv_today = iv_data['Close'].dropna().iloc[-1]
 
-        # Plotting
+        # Display outputs
+        st.subheader("🔍 Volatility Summary")
+        st.write(f"**GARCH Forecasted 1-Day Volatility** for {index_name}: `{garch_vol:.2f}%`")
+        st.write(f"**Implied Volatility (IV)** from {iv_symbol}: `{iv_today:.2f}%`")
+
+        # Volatility premium
+        vol_premium = iv_today - garch_vol
+        st.write(f"**Volatility Premium (IV - GARCH)**: `{vol_premium:.2f}`")
+
+        # Thresholds (adjustable based on history or your preference)
+        iv_threshold = 18 if symbol == "^GSPC" else 22  # typical VIX/VXN average levels
+        garch_threshold = returns.std() * 1.5           # rough high-volatility threshold
+
+        # Strategy Bias Logic (4-case matrix)
+        st.subheader("🧭 Volatility Regime & CFD Strategy Bias")
+
+        if garch_vol > garch_threshold and iv_today > iv_threshold:
+            st.warning("**High GARCH + High IV** 🔥\n\nMarket is volatile and pricing in further risk. Spike potential. Consider fading extremes or reducing exposure.")
+        elif garch_vol > garch_threshold and iv_today <= iv_threshold:
+            st.warning("**High GARCH + Low IV** ⚠️\n\nRealized risk is high, but market is ignoring it. Beware of underpriced volatility. Consider trading conservatively.")
+        elif garch_vol <= garch_threshold and iv_today > iv_threshold:
+            st.success("**Low GARCH + High IV** 💡\n\nOptions market expects a move, but realized vol is low. Potential breakout — consider momentum setups.")
+        else:
+            st.info("**Low GARCH + Low IV** 💤\n\nQuiet regime. Market is calm. Consider mean-reversion or range trading.")
+
+        # Plot GARCH volatility
         fig, ax = plt.subplots()
-        res.conditional_volatility.plot(ax=ax, title=f"GARCH(1,1) Conditional Volatility - {index_name}")
+        res.conditional_volatility.plot(ax=ax, title=f"GARCH Conditional Volatility - {index_name}")
         ax.set_ylabel("Volatility (%)")
         st.pyplot(fig)
